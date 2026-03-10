@@ -3,8 +3,12 @@ import Login from './components/Login'
 import Register from './components/Register'
 import Dashboard from './components/Dashboard'
 import Profile from './components/Profile'
+import ProductDetail from './components/ProductDetail'
+import Checkout from './components/Checkout'
+import Cart from './components/Cart'
 
 function App() {
+    const [selectedProduct, setSelectedProduct] = useState(null)
     const [currentPage, setCurrentPage] = useState(() => {
         const savedUser = localStorage.getItem('currentUser')
         return savedUser ? 'pos' : 'login'
@@ -59,7 +63,29 @@ function App() {
             case 'register':
                 return <Register onRegister={handleRegister} onNavigateToLogin={() => setCurrentPage('login')} />
             case 'pos':
-                return <Dashboard currentUser={currentUser} onNavigateToProfile={() => setCurrentPage('profile')} />
+                return <Dashboard 
+                    currentUser={currentUser} 
+                    onNavigateToProfile={() => setCurrentPage('profile')} 
+                    onProductClick={(product) => { setSelectedProduct(product); setCurrentPage('product-detail'); }} 
+                    onCartClick={() => setCurrentPage('cart')}
+                />
+            case 'cart':
+                return <Cart 
+                    onBack={() => setCurrentPage('pos')}
+                    onCheckout={(product) => { setSelectedProduct(product); setCurrentPage('checkout'); }}
+                />
+            case 'product-detail':
+                return <ProductDetail 
+                    product={selectedProduct} 
+                    onBack={() => setCurrentPage('pos')} 
+                    onBuy={() => setCurrentPage('checkout')} 
+                />
+            case 'checkout':
+                return <Checkout 
+                    product={selectedProduct} 
+                    onBack={() => setCurrentPage('product-detail')} 
+                    onCompleteCheckout={() => { alert('Pembayaran Berhasil! Pesanan sedang diproses.'); setCurrentPage('pos'); }} 
+                />
             case 'profile':
                 return <Profile currentUser={currentUser} onLogout={handleLogout} onNavigateToDashboard={() => setCurrentPage('pos')} />
             default:

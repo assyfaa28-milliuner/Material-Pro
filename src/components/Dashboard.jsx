@@ -1,6 +1,56 @@
 import React, { useState } from 'react';
+import imgSemenTigaRoda from '../assets/images/semen-tiga-roda.jpg';
 
-const Dashboard = ({ currentUser, onNavigateToProfile }) => {
+const productList = [
+  {
+    id: 1,
+    image: imgSemenTigaRoda,
+    title: "Semen Tiga Roda 50kg",
+    price: "Rp55.000",
+    rating: "4.8",
+    sold: "10rb+"
+  },
+  {
+    id: 2,
+    image: "https://placehold.co/400x400?text=Cat+Dulux",
+    title: "Cat Dulux WeatherShield Putih 5kg",
+    price: "Rp240.000",
+    rating: "4.7",
+    sold: "2rb+"
+  },
+  {
+    id: 3,
+    image: "https://images.unsplash.com/photo-1621252178972-749e78a6ff61?w=400&q=80",
+    title: "Pipa PVC Rucika 3 Inch D (4 Meter)",
+    price: "Rp110.000",
+    rating: "4.5",
+    sold: "3rb+"
+  },
+  {
+    id: 4,
+    image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&q=80",
+    title: "Batu Bata Merah Oven Berkualitas (1000 Pcs)",
+    price: "Rp800.000",
+    rating: "4.6",
+    sold: "15rb+"
+  },
+  {
+    id: 5,
+    image: "https://images.unsplash.com/photo-1542153508-d890a886fd9a?w=400&q=80",
+    title: "Kayu Usuk Borneo 4x6 Kering (Per Batang)",
+    price: "Rp45.000",
+    rating: "4.4",
+    sold: "7rb+"
+  }
+];
+
+const Dashboard = ({ currentUser, onNavigateToProfile, onProductClick, onCartClick }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredProducts = productList.filter(product => 
+    product.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex justify-center pb-20">
       <div className="w-full max-w-md bg-[#f5f5f5] min-h-screen relative shadow-sm">
@@ -17,12 +67,14 @@ const Dashboard = ({ currentUser, onNavigateToProfile }) => {
               <input
                 type="text"
                 placeholder="Cari semen, cat, besi..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-white rounded-md text-sm outline-none placeholder-gray-400 text-gray-800"
               />
             </div>
 
             <div className="flex items-center gap-3 text-white">
-              <button className="relative p-1">
+              <button onClick={onCartClick} className="relative p-1">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                 </svg>
@@ -75,41 +127,23 @@ const Dashboard = ({ currentUser, onNavigateToProfile }) => {
           </div>
 
           <div className="grid grid-cols-2 gap-3 pb-8">
-            <ProductCard
-              image="https://images.unsplash.com/photo-1518790014073-1dc04dcf4eac?w=400&q=80"
-              title="Semen Tiga Roda 50kg"
-              price="Rp55.000"
-              rating="4.8"
-              sold="10rb+"
-            />
-            <ProductCard
-              image="https://images.unsplash.com/photo-1563214532-680fdd9389f4?w=400&q=80"
-              title="Cat Dulux WeatherShield Putih 5kg"
-              price="Rp240.000"
-              rating="4.7"
-              sold="2rb+"
-            />
-            <ProductCard
-              image="https://images.unsplash.com/photo-1621252178972-749e78a6ff61?w=400&q=80"
-              title="Pipa PVC Rucika 3 Inch D (4 Meter)"
-              price="Rp110.000"
-              rating="4.5"
-              sold="3rb+"
-            />
-            <ProductCard
-              image="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&q=80"
-              title="Batu Bata Merah Oven Berkualitas (1000 Pcs)"
-              price="Rp800.000"
-              rating="4.6"
-              sold="15rb+"
-            />
-            <ProductCard
-              image="https://images.unsplash.com/photo-1542153508-d890a886fd9a?w=400&q=80"
-              title="Kayu Usuk Borneo 4x6 Kering (Per Batang)"
-              price="Rp45.000"
-              rating="4.4"
-              sold="7rb+"
-            />
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map(product => (
+                <ProductCard
+                  key={product.id}
+                  onClick={() => onProductClick(product)}
+                  image={product.image}
+                  title={product.title}
+                  price={product.price}
+                  rating={product.rating}
+                  sold={product.sold}
+                />
+              ))
+            ) : (
+              <div className="col-span-2 text-center py-10 text-gray-500">
+                <p>Produk "{searchTerm}" tidak ditemukan.</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -135,8 +169,8 @@ const CategoryBtn = ({ icon, label }) => (
   </div>
 );
 
-const ProductCard = ({ image, title, price, rating, sold }) => (
-  <div className="bg-white rounded-xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col cursor-pointer hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-shadow">
+const ProductCard = ({ image, title, price, rating, sold, onClick }) => (
+  <div onClick={onClick} className="bg-white rounded-xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col cursor-pointer hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-shadow">
     <div className="relative aspect-square bg-gray-100">
       <img src={image} alt={title} className="w-full h-full object-cover" />
       <div className="absolute top-0 left-0 bg-[#ffb900] text-[#001f3f] text-[10px] font-bold px-2 py-0.5 rounded-br-lg">
