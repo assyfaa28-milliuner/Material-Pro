@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import imgSemenTigaRoda from '../assets/images/semen-tiga-roda.jpg';
+import imgCatDulux from '../assets/images/cat-dulux.png';
 
 const productList = [
   {
@@ -12,7 +13,7 @@ const productList = [
   },
   {
     id: 2,
-    image: "https://placehold.co/400x400?text=Cat+Dulux",
+    image: imgCatDulux,
     title: "Cat Dulux WeatherShield Putih 5kg",
     price: "Rp240.000",
     rating: "4.7",
