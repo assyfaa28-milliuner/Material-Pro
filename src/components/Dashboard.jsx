@@ -3,6 +3,7 @@ import imgSemenTigaRoda from '../assets/images/semen-tiga-roda.jpg';
 import imgCatDulux from '../assets/images/cat-dulux.png';
 import imgPipaRucika from '../assets/images/pipa-rucika.png';
 import imgBataMerah from '../assets/images/bata-merah.png';
+import imgKayuUsuk from '../assets/images/kayu-usuk.png';
 
 const productList = [
   {
@@ -39,7 +40,7 @@ const productList = [
   },
   {
     id: 5,
-    image: "https://images.unsplash.com/photo-1542153508-d890a886fd9a?w=400&q=80",
+    image: imgKayuUsuk,
     title: "Kayu Usuk Borneo 4x6 Kering (Per Batang)",
     price: "Rp45.000",
     rating: "4.4",
