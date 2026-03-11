@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import imgSemenTigaRoda from '../assets/images/semen-tiga-roda.jpg';
 import imgCatDulux from '../assets/images/cat-dulux.png';
 import imgPipaRucika from '../assets/images/pipa-rucika.png';
+import imgBataMerah from '../assets/images/bata-merah.png';
 
 const productList = [
   {
@@ -30,7 +31,7 @@ const productList = [
   },
   {
     id: 4,
-    image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&q=80",
+    image: imgBataMerah,
     title: "Batu Bata Merah Oven Berkualitas (1000 Pcs)",
     price: "Rp800.000",
     rating: "4.6",
