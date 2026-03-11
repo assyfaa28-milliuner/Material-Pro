@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ProductDetail = ({ product, onBack, onBuy }) => {
+const ProductDetail = ({ product, onAddToCart, onBack, onBuy }) => {
   if (!product) return null;
 
   return (
@@ -57,17 +57,20 @@ const ProductDetail = ({ product, onBack, onBuy }) => {
 
       {/* Sticky Bottom Bar */}
       <div className="fixed bottom-0 w-full max-w-md bg-white border-t border-gray-200 p-3 z-50 flex gap-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
-        <button className="flex-1 border border-[#7d0f0f] text-[#7d0f0f] font-bold py-2.5 rounded-lg flex justify-center items-center gap-2 hover:bg-gray-50 transition-colors">
+        <button 
+          onClick={() => onAddToCart(product, 1)}
+          className="flex-1 border border-[#7d0f0f] text-[#7d0f0f] font-bold py-2.5 rounded-lg flex justify-center items-center gap-2 hover:bg-[#7d0f0f]/5 transition-colors"
+        >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
-          Chat Penjual
+          + Keranjang
         </button>
         <button 
-          onClick={() => onBuy(product)}
+          onClick={onBuy}
           className="flex-1 bg-[#7d0f0f] text-white font-bold py-2.5 rounded-lg hover:bg-[#630b0b] transition-colors shadow-md shadow-[#7d0f0f]/20"
         >
-          Beli Sekarang
+          Beli Langsung
         </button>
       </div>
     </div>

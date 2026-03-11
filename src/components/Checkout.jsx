@@ -1,21 +1,29 @@
 import React, { useState } from 'react';
 
-const Checkout = ({ product, onBack, onCompleteCheckout }) => {
+const Checkout = ({ cartItems, onBack, onCompleteCheckout }) => {
   const [sedekah, setSedekah] = useState(0);
+  const [isCustomSedekah, setIsCustomSedekah] = useState(false);
+  const [customSedekahValue, setCustomSedekahValue] = useState('');
+  
   const [paymentMethod, setPaymentMethod] = useState('qris'); // Default QRIS
   const [showQR, setShowQR] = useState(false);
+  
+  // Shipping details
+  const [address, setAddress] = useState('');
+  const [courier, setCourier] = useState('reguler');
+  const shippingFee = courier === 'cargo' ? 100000 : courier === 'instan' ? 50000 : 25000;
 
-  if (!product) return null;
+  if (!cartItems || cartItems.length === 0) return null;
 
-  // Helper to parse Rp String to Number
-  const getProductPriceNumber = () => {
-    return parseInt(product.price.replace(/[^0-9]/g, ''), 10);
-  };
+  // Calculate Subtotal from array
+  const rawSubtotal = cartItems.reduce((sum, item) => {
+    const priceNum = parseInt(item.price.replace(/[^0-9]/g, ''), 10);
+    return sum + (priceNum * item.quantity);
+  }, 0);
 
-  const productPrice = getProductPriceNumber();
-  const rawSubtotal = productPrice;
+  const activeSedekah = isCustomSedekah ? (parseInt(customSedekahValue, 10) || 0) : sedekah;
   const adminFee = 1000;
-  const grandTotal = rawSubtotal + adminFee + sedekah;
+  const grandTotal = rawSubtotal + shippingFee + adminFee + activeSedekah;
 
   const handlePay = () => {
     if (paymentMethod === 'qris') {
@@ -79,18 +87,60 @@ const Checkout = ({ product, onBack, onCompleteCheckout }) => {
       </div>
 
       <div className="p-4 space-y-4">
-        {/* Order Item */}
+        {/* Order Items */}
         <div className="bg-white p-4 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100">
           <h3 className="font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2">Ringkasan Pesanan</h3>
-          <div className="flex gap-4">
-            <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-               <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-800 line-clamp-2 leading-snug">{product.title}</p>
-              <p className="text-[#7d0f0f] font-bold mt-1">{product.price}</p>
-              <p className="text-xs text-gray-400 mt-1">1x</p>
-            </div>
+          <div className="space-y-3">
+            {cartItems.map(item => (
+              <div key={item.id} className="flex gap-4">
+                <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                  <img src={item.image} onError={(e) => e.target.src="https://placehold.co/400x400?text=Produk"} alt={item.title} className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-800 line-clamp-2 leading-snug">{item.title}</p>
+                  <p className="text-[#7d0f0f] font-bold mt-1">{item.price}</p>
+                  <p className="text-xs text-gray-400 mt-1">{item.quantity}x</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Shipping Address */}
+        <div className="bg-white p-4 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100">
+          <h3 className="font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2">Alamat Pengiriman</h3>
+          <textarea
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="Masukkan alamat lengkap (Jalan, RT/RW, Kecamatan, Kota)..."
+            className="w-full border border-gray-200 rounded-lg p-3 text-sm text-gray-700 focus:outline-none focus:border-[#7d0f0f] focus:ring-1 focus:ring-[#7d0f0f] min-h-[80px]"
+          />
+        </div>
+
+        {/* Courier Selection */}
+        <div className="bg-white p-4 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100">
+          <h3 className="font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2">Pilih Pengiriman</h3>
+          <div className="space-y-2">
+            {[
+              { id: 'reguler', name: 'Reguler (2-3 Hari)', fee: 25000 },
+              { id: 'instan', name: 'Instan (Hari yang sama)', fee: 50000 },
+              { id: 'cargo', name: 'Cargo (Kapasitas Besar)', fee: 100000 }
+            ].map((c) => (
+              <label key={c.id} className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors ${courier === c.id ? 'border-[#7d0f0f] bg-red-50/10' : 'border-gray-200'}`}>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-gray-800">{c.name}</span>
+                  <span className="text-xs text-gray-500">Rp{c.fee.toLocaleString('id-ID')}</span>
+                </div>
+                <input
+                  type="radio"
+                  name="courier"
+                  value={c.id}
+                  checked={courier === c.id}
+                  onChange={() => setCourier(c.id)}
+                  className="w-4 h-4 text-[#7d0f0f] focus:ring-[#7d0f0f]"
+                />
+              </label>
+            ))}
           </div>
         </div>
 
@@ -106,20 +156,41 @@ const Checkout = ({ product, onBack, onCompleteCheckout }) => {
             Berbagi kebaikan bersama Material Pro. Salurkan bantuan Anda untuk renovasi masjid dan sarana umum.
           </p>
           <div className="grid grid-cols-4 gap-2">
-            {[0, 2000, 5000, 10000].map(amount => (
+            {[0, 2000, 5000, -1].map(amount => (
               <button
                 key={amount}
-                onClick={() => setSedekah(amount)}
+                onClick={() => {
+                  if (amount === -1) {
+                     setIsCustomSedekah(true);
+                     setSedekah(0);
+                  } else {
+                     setIsCustomSedekah(false);
+                     setSedekah(amount);
+                  }
+                }}
                 className={`py-2 text-xs font-bold rounded-lg border transition-colors ${
-                  sedekah === amount 
+                  (isCustomSedekah && amount === -1) || (!isCustomSedekah && sedekah === amount)
                     ? 'border-emerald-500 bg-emerald-50 text-emerald-700' 
                     : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                 }`}
               >
-                {amount === 0 ? 'Silang' : `Rp${(amount/1000)}k`}
+                {amount === 0 ? 'Nanti' : amount === -1 ? 'Lainnya' : `Rp${(amount/1000)}k`}
               </button>
             ))}
           </div>
+          
+          {isCustomSedekah && (
+            <div className="mt-3 relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">Rp</span>
+              <input 
+                type="number" 
+                value={customSedekahValue}
+                onChange={(e) => setCustomSedekahValue(e.target.value)}
+                placeholder="Masukkan nominal sedekah"
+                className="w-full pl-9 pr-3 py-2 border border-emerald-500 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm font-bold text-gray-800"
+              />
+            </div>
+          )}
         </div>
 
         {/* Payment Method */}
@@ -170,13 +241,17 @@ const Checkout = ({ product, onBack, onCompleteCheckout }) => {
               <span>Rp{rawSubtotal.toLocaleString('id-ID')}</span>
             </div>
             <div className="flex justify-between text-gray-600">
+              <span>Biaya Pengiriman</span>
+              <span>Rp{shippingFee.toLocaleString('id-ID')}</span>
+            </div>
+            <div className="flex justify-between text-gray-600">
               <span>Biaya Layanan</span>
               <span>Rp{adminFee.toLocaleString('id-ID')}</span>
             </div>
-            {sedekah > 0 && (
+            {activeSedekah > 0 && (
               <div className="flex justify-between text-emerald-600 font-medium">
                 <span>Sedekah</span>
-                <span>Rp{sedekah.toLocaleString('id-ID')}</span>
+                <span>Rp{activeSedekah.toLocaleString('id-ID')}</span>
               </div>
             )}
             <div className="flex justify-between font-bold text-gray-800 text-base pt-2 border-t border-gray-100 mt-2">

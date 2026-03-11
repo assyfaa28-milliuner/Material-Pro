@@ -17,6 +17,26 @@ function App() {
         const saved = localStorage.getItem('currentUser')
         return saved ? JSON.parse(saved) : null
     })
+    
+    // Global Cart State
+    const [cartItems, setCartItems] = useState([])
+
+    const addToCart = (product, quantity = 1) => {
+        setCartItems(prevItems => {
+            const existingItem = prevItems.find(item => item.id === product.id)
+            if (existingItem) {
+                return prevItems.map(item =>
+                    item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+                )
+            }
+            return [...prevItems, { ...product, quantity }]
+        })
+        alert(`${product.title} berhasil ditambahkan ke keranjang!`)
+    }
+
+    const removeFromCart = (productId) => {
+        setCartItems(prevItems => prevItems.filter(item => item.id !== productId))
+    }
 
     // Dummy database to store users, now persisted
     const [registeredUsers, setRegisteredUsers] = useState(() => {
@@ -71,20 +91,27 @@ function App() {
                 />
             case 'cart':
                 return <Cart 
+                    cartItems={cartItems}
+                    onRemoveFromCart={removeFromCart}
                     onBack={() => setCurrentPage('pos')}
-                    onCheckout={(product) => { setSelectedProduct(product); setCurrentPage('checkout'); }}
+                    onCheckout={() => setCurrentPage('checkout')}
                 />
             case 'product-detail':
                 return <ProductDetail 
                     product={selectedProduct} 
+                    onAddToCart={addToCart}
                     onBack={() => setCurrentPage('pos')} 
-                    onBuy={() => setCurrentPage('checkout')} 
+                    onBuy={() => { addToCart(selectedProduct, 1); setCurrentPage('checkout') }} 
                 />
             case 'checkout':
                 return <Checkout 
-                    product={selectedProduct} 
-                    onBack={() => setCurrentPage('product-detail')} 
-                    onCompleteCheckout={() => { alert('Pembayaran Berhasil! Pesanan sedang diproses.'); setCurrentPage('pos'); }} 
+                    cartItems={cartItems} 
+                    onBack={() => setCurrentPage('cart')} 
+                    onCompleteCheckout={() => { 
+                        alert('Pembayaran Berhasil! Pesanan sedang diproses.'); 
+                        setCartItems([]); // Clear cart after success
+                        setCurrentPage('pos'); 
+                    }} 
                 />
             case 'profile':
                 return <Profile currentUser={currentUser} onLogout={handleLogout} onNavigateToDashboard={() => setCurrentPage('pos')} />
