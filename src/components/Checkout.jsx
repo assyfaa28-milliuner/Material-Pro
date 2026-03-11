@@ -29,8 +29,8 @@ const Checkout = ({ cartItems, onBack, onCompleteCheckout }) => {
     if (paymentMethod === 'qris') {
       setShowQR(true);
     } else {
-      // Simulate other payment success
-      onCompleteCheckout();
+      // Pass the payment method to the parent for customized success messages
+      onCompleteCheckout(paymentMethod);
     }
   };
 
@@ -64,7 +64,7 @@ const Checkout = ({ cartItems, onBack, onCompleteCheckout }) => {
           </div>
 
           <button 
-            onClick={onCompleteCheckout}
+            onClick={() => onCompleteCheckout('qris')}
             className="mt-8 w-full bg-[#7d0f0f] text-white font-bold py-3.5 rounded-xl hover:bg-[#630b0b] shadow-md transition-colors"
           >
             SAYA SUDAH BAYAR
@@ -194,15 +194,20 @@ const Checkout = ({ cartItems, onBack, onCompleteCheckout }) => {
         </div>
 
         {/* Payment Method */}
-        <div className="bg-white p-4 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100">
+        <div className="bg-white p-4 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 mb-6">
           <h3 className="font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2">Metode Pembayaran</h3>
           <div className="space-y-3">
-            <label className="flex items-center justify-between cursor-pointer group">
+            
+            {/* QRIS */}
+            <label className="flex items-center justify-between cursor-pointer group pb-3 border-b border-gray-50">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-[10px]">
                   QRIS
                 </div>
-                <span className="text-sm font-medium text-gray-800">QRIS (Gopay, OVO, Dana)</span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-gray-800">QRIS</span>
+                  <span className="text-[10px] text-gray-500">Menerima Dana, OVO, Gopay, ShopeePay, dll</span>
+                </div>
               </div>
               <input 
                 type="radio" 
@@ -213,22 +218,57 @@ const Checkout = ({ cartItems, onBack, onCompleteCheckout }) => {
                 className="w-4 h-4 text-[#7d0f0f] focus:ring-[#7d0f0f]"
               />
             </label>
-            <label className="flex items-center justify-between cursor-pointer group pt-2 border-t border-gray-50">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-[10px]">
-                  BCA
+
+            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-widest pt-1">Transfer Bank</h4>
+
+            {/* Bank Transfers */}
+            {[
+              { id: 'bank_bca', name: 'BCA', desc: 'Transfer Bank BCA' },
+              { id: 'bank_mandiri', name: 'MANDIRI', desc: 'Transfer Bank Mandiri' },
+              { id: 'bank_bri', name: 'BRI', desc: 'Transfer Bank BRI' },
+              { id: 'bank_bni', name: 'BNI', desc: 'Transfer Bank BNI' }
+            ].map((bank) => (
+              <label key={bank.id} className="flex items-center justify-between cursor-pointer group pt-1">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-[10px]">
+                    {bank.name}
+                  </div>
+                  <span className="text-sm font-medium text-gray-800">{bank.desc}</span>
                 </div>
-                <span className="text-sm font-medium text-gray-800">Transfer Bank BCA</span>
+                <input 
+                  type="radio" 
+                  name="payment" 
+                  value={bank.id} 
+                  checked={paymentMethod === bank.id}
+                  onChange={() => setPaymentMethod(bank.id)}
+                  className="w-4 h-4 text-[#7d0f0f] focus:ring-[#7d0f0f]"
+                />
+              </label>
+            ))}
+
+            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-widest pt-3 border-t border-gray-50">Lainnya</h4>
+
+            {/* COD */}
+            <label className="flex items-center justify-between cursor-pointer group pt-1">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-[#f2e6e6] flex items-center justify-center text-[#7d0f0f] font-bold text-[10px]">
+                  COD
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-gray-800">Bayar di Tempat (COD)</span>
+                  <span className="text-[10px] text-gray-500">Bayar tunai kepada kurir saat pesanan sampai</span>
+                </div>
               </div>
               <input 
                 type="radio" 
                 name="payment" 
-                value="bca" 
-                checked={paymentMethod === 'bca'}
-                onChange={() => setPaymentMethod('bca')}
+                value="cod" 
+                checked={paymentMethod === 'cod'}
+                onChange={() => setPaymentMethod('cod')}
                 className="w-4 h-4 text-[#7d0f0f] focus:ring-[#7d0f0f]"
               />
             </label>
+
           </div>
         </div>
 

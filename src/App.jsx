@@ -128,8 +128,14 @@ function App() {
                 return <Checkout 
                     cartItems={cartItems} 
                     onBack={() => setCurrentPage('cart')} 
-                    onCompleteCheckout={() => { 
-                        alert('Pembayaran Berhasil! Pesanan sedang diproses.'); 
+                    onCompleteCheckout={(paymentMethod) => { 
+                        if (paymentMethod === 'cod') {
+                            alert('Pesanan Diterima! Silakan siapkan uang tunai untuk dibayarkan kepada kurir saat barang sampai.');
+                        } else if (paymentMethod?.startsWith('bank_')) {
+                            alert('Detail pemesanan dan instruksi Transfer Bank telah dikirim ke WhatsApp Anda. Pesanan akan diproses setelah pembayaran diterima.');
+                        } else {
+                            alert('Pembayaran Berhasil! Pesanan sedang diproses.'); 
+                        }
                         setCartItems([]); // Clear cart after success
                         setCurrentPage('pos'); 
                     }} 
