@@ -224,7 +224,7 @@ const Checkout = ({ cartItems, onBack, onCompleteCheckout }) => {
             {/* Bank Transfers */}
             {[
               { id: 'bank_bca', name: 'BCA', desc: 'Transfer Bank BCA' },
-              { id: 'bank_mandiri', name: 'MANDIRI', desc: 'Transfer Bank Mandiri' },
+              { id: 'bank_bsi', name: 'BSI', desc: 'Transfer Bank Syariah Indonesia' },
               { id: 'bank_bri', name: 'BRI', desc: 'Transfer Bank BRI' },
               { id: 'bank_bni', name: 'BNI', desc: 'Transfer Bank BNI' }
             ].map((bank) => (
