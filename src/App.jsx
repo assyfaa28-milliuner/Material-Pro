@@ -38,6 +38,25 @@ function App() {
         setCartItems(prevItems => prevItems.filter(item => item.id !== productId))
     }
 
+    const updateCartQuantity = (productId, delta) => {
+        setCartItems(prevItems => prevItems.map(item => {
+            if (item.id === productId) {
+                const newQuantity = item.quantity + delta;
+                return newQuantity > 0 ? { ...item, quantity: newQuantity } : item;
+            }
+            return item;
+        }).filter(item => item.quantity > 0)); 
+        // Filter is a fallback in case we allow deleting via minus button, 
+        // but currently we clamp it to >0 or handle removal explicitly if needed.
+        // Actually, if newQuantity is 0, let's remove it:
+        setCartItems(prevItems => prevItems.map(item => {
+            if (item.id === productId) {
+                return { ...item, quantity: item.quantity + delta };
+            }
+            return item;
+        }).filter(item => item.quantity > 0));
+    }
+
     // Dummy database to store users, now persisted
     const [registeredUsers, setRegisteredUsers] = useState(() => {
         const saved = localStorage.getItem('registeredUsers')
@@ -85,6 +104,7 @@ function App() {
             case 'pos':
                 return <Dashboard 
                     currentUser={currentUser} 
+                    cartItemCount={cartItems.length}
                     onNavigateToProfile={() => setCurrentPage('profile')} 
                     onProductClick={(product) => { setSelectedProduct(product); setCurrentPage('product-detail'); }} 
                     onCartClick={() => setCurrentPage('cart')}
@@ -93,6 +113,7 @@ function App() {
                 return <Cart 
                     cartItems={cartItems}
                     onRemoveFromCart={removeFromCart}
+                    onUpdateQuantity={updateCartQuantity}
                     onBack={() => setCurrentPage('pos')}
                     onCheckout={() => setCurrentPage('checkout')}
                 />

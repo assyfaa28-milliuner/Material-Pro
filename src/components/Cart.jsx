@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Cart = ({ cartItems, onRemoveFromCart, onBack, onCheckout }) => {
+const Cart = ({ cartItems, onRemoveFromCart, onUpdateQuantity, onBack, onCheckout }) => {
   const totalOrigin = cartItems.reduce((sum, item) => {
     const priceNum = parseInt(item.price.replace(/[^0-9]/g, ''), 10);
     return sum + (priceNum * item.quantity);
@@ -47,7 +47,9 @@ const Cart = ({ cartItems, onRemoveFromCart, onBack, onCheckout }) => {
                 <div className="flex items-center justify-between mt-auto">
                    <span className="text-xs text-gray-500">Kuantitas:</span>
                    <div className="flex items-center gap-3">
-                     <span className="text-sm font-bold bg-gray-50 px-3 py-0.5 rounded border border-gray-200">{item.quantity}</span>
+                     <button onClick={() => onUpdateQuantity(item.id, -1)} className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">-</button>
+                     <span className="text-sm font-bold w-4 text-center">{item.quantity}</span>
+                     <button onClick={() => onUpdateQuantity(item.id, 1)} className="w-6 h-6 rounded-full border border-[#7d0f0f] flex items-center justify-center text-[#7d0f0f] hover:bg-[#7d0f0f]/10 transition-colors">+</button>
                    </div>
                 </div>
               </div>
