@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import imgSemenTigaRoda from '../assets/images/semen-tiga-roda.jpg';
 import imgCatDulux from '../assets/images/cat-dulux.png';
+import imgPipaRucika from '../assets/images/pipa-rucika.png';
 
 const productList = [
   {
@@ -21,7 +22,7 @@ const productList = [
   },
   {
     id: 3,
-    image: "https://images.unsplash.com/photo-1621252178972-749e78a6ff61?w=400&q=80",
+    image: imgPipaRucika,
     title: "Pipa PVC Rucika 3 Inch D (4 Meter)",
     price: "Rp110.000",
     rating: "4.5",

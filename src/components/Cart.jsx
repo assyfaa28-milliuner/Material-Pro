@@ -1,4 +1,5 @@
 import React from 'react';
+import imgPipaRucika from '../assets/images/pipa-rucika.png';
 
 const Cart = ({ onBack, onCheckout }) => {
   // Mock cart items for demonstration
@@ -15,7 +16,7 @@ const Cart = ({ onBack, onCheckout }) => {
       title: "Pipa PVC Rucika 3 Inch D",
       price: "Rp110.000",
       quantity: 2,
-      image: "https://images.unsplash.com/photo-1621252178972-749e78a6ff61?w=400&q=80"
+      image: imgPipaRucika
     }
   ];
 
