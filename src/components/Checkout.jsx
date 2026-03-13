@@ -26,11 +26,12 @@ const Checkout = ({ cartItems, onBack, onCompleteCheckout }) => {
   const grandTotal = rawSubtotal + shippingFee + adminFee + activeSedekah;
 
   const handlePay = () => {
+    const checkoutPayload = { grandTotal, address, courier };
     if (paymentMethod === 'qris') {
       setShowQR(true);
     } else {
       // Pass the payment method to the parent for customized success messages
-      onCompleteCheckout(paymentMethod);
+      onCompleteCheckout(paymentMethod, checkoutPayload);
     }
   };
 
@@ -64,7 +65,7 @@ const Checkout = ({ cartItems, onBack, onCompleteCheckout }) => {
           </div>
 
           <button 
-            onClick={() => onCompleteCheckout('qris')}
+            onClick={() => onCompleteCheckout('qris', { grandTotal, address, courier })}
             className="mt-8 w-full bg-[#7d0f0f] text-white font-bold py-3.5 rounded-xl hover:bg-[#630b0b] shadow-md transition-colors"
           >
             SAYA SUDAH BAYAR

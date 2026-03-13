@@ -12,13 +12,10 @@ const Login = ({ onLogin, onNavigateToRegister }) => {
     setError('');
 
     try {
-      // Simulate an API call with a timeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const success = onLogin(email, password);
+      const success = await onLogin(email, password);
 
       if (!success) {
-        throw new Error('Email atau kata sandi tidak valid');
+        throw new Error('Email/No Handphone atau kata sandi tidak valid');
       }
 
       // If success, App.jsx handles the redirect

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { supabase } from './lib/supabase'
 import Login from './components/Login'
 import Register from './components/Register'
 import Dashboard from './components/Dashboard'
@@ -57,36 +58,56 @@ function App() {
         }).filter(item => item.quantity > 0));
     }
 
-    // Dummy database to store users, now persisted
-    const [registeredUsers, setRegisteredUsers] = useState(() => {
-        const saved = localStorage.getItem('registeredUsers')
-        if (saved) return JSON.parse(saved)
-        return [
-            { name: 'Admin', email: 'admin@materialpro.com', whatsapp: '08123456789', address: 'Jl. Contoh No. 123', password: 'password123' }
-        ]
-    })
+    const handleLogin = async (emailOrPhone, password) => {
+        try {
+            const { data: user, error } = await supabase
+                .from('users')
+                .select('*')
+                .or(`email.eq.${emailOrPhone},whatsapp.eq.${emailOrPhone}`)
+                .eq('password', password)
+                .single()
 
-    const handleLogin = (emailOrPhone, password) => {
-        const user = registeredUsers.find(
-            u => (u.email === emailOrPhone || u.whatsapp === emailOrPhone) && u.password === password
-        )
-        if (user) {
+            if (error || !user) {
+                console.error("Login Error:", error)
+                return false
+            }
+
             setCurrentUser(user)
             localStorage.setItem('currentUser', JSON.stringify(user))
             setCurrentPage('pos')
             return true
+        } catch (err) {
+            console.error(err)
+            return false
         }
-        return false
     }
 
-    const handleRegister = (name, whatsapp, email, address, password) => {
-        const exists = registeredUsers.find(u => u.whatsapp === whatsapp || (email && u.email === email))
-        if (exists) return false // Prevent duplicate phone or email
+    const handleRegister = async (name, whatsapp, email, address, password) => {
+        try {
+            // Check if user exists (Optional, Supabase UK handles it, but good for UX)
+            const { data: existingUser } = await supabase
+                .from('users')
+                .select('id')
+                .or(`email.eq.${email},whatsapp.eq.${whatsapp}`)
+                .maybeSingle()
 
-        const updatedUsers = [...registeredUsers, { name, whatsapp, email, address, password }]
-        setRegisteredUsers(updatedUsers)
-        localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers))
-        return true
+            if (existingUser) return false
+
+            const { data, error } = await supabase
+                .from('users')
+                .insert([{ name, whatsapp, email, address, password }])
+                .select()
+
+            if (error) {
+                console.error("Registration Error:", error)
+                return false
+            }
+
+            return true
+        } catch (err) {
+            console.error(err)
+            return false
+        }
     }
 
     const handleLogout = () => {
@@ -128,16 +149,34 @@ function App() {
                 return <Checkout 
                     cartItems={cartItems} 
                     onBack={() => setCurrentPage('cart')} 
-                    onCompleteCheckout={(paymentMethod) => { 
-                        if (paymentMethod === 'cod') {
-                            alert('Pesanan Diterima! Silakan siapkan uang tunai untuk dibayarkan kepada kurir saat barang sampai.');
-                        } else if (paymentMethod?.startsWith('bank_')) {
-                            alert('Detail pemesanan dan instruksi Transfer Bank telah dikirim ke WhatsApp Anda. Pesanan akan diproses setelah pembayaran diterima.');
-                        } else {
-                            alert('Pembayaran Berhasil! Pesanan sedang diproses.'); 
+                    onCompleteCheckout={async (paymentMethod, checkoutPayload) => { 
+                        try {
+                            const { error } = await supabase
+                                .from('orders')
+                                .insert([{
+                                    user_id: currentUser.id,
+                                    total_amount: checkoutPayload.grandTotal,
+                                    shipping_address: checkoutPayload.address,
+                                    courier: checkoutPayload.courier,
+                                    payment_method: paymentMethod,
+                                    items: cartItems
+                                }]);
+                                
+                            if (error) throw error;
+
+                            if (paymentMethod === 'cod') {
+                                alert('Pesanan Diterima! Silakan siapkan uang tunai untuk dibayarkan kepada kurir saat barang sampai.');
+                            } else if (paymentMethod?.startsWith('bank_')) {
+                                alert('Detail pemesanan dan instruksi Transfer Bank telah dikirim ke WhatsApp Anda. Pesanan akan diproses setelah pembayaran diterima.');
+                            } else {
+                                alert('Pembayaran Berhasil! Pesanan sedang diproses.'); 
+                            }
+                            setCartItems([]); // Clear cart after success
+                            setCurrentPage('pos'); 
+                        } catch (err) {
+                            console.error("Order error", err);
+                            alert("Gagal memproses pesanan, silakan coba lagi atau cek koneksi database Anda.");
                         }
-                        setCartItems([]); // Clear cart after success
-                        setCurrentPage('pos'); 
                     }} 
                 />
             case 'profile':

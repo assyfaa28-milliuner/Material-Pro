@@ -37,9 +37,7 @@ const Register = ({ onRegister, onNavigateToLogin }) => {
     }
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const success = onRegister(name, whatsapp, email, address, password);
+      const success = await onRegister(name, whatsapp, email, address, password);
 
       if (success) {
         onNavigateToLogin();
